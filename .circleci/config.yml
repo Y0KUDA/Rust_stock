@@ -33,6 +33,19 @@ jobs:
           name: build
           command: cargo build
 
+  coverage:
+    docker:
+      - image: xd009642/tarpaulin
+    steps:
+      - attach_workspace:
+          at: .
+      - run:
+          name: execute tarpaulin
+          command: cargo tarpaulin -v --out Xml
+      - run:
+          name: upload coverage to codecov
+          command: bash <(curl -s https://codecov.io/bash)
+
 workflows:
   version: 2
   all:
@@ -44,3 +57,6 @@ workflows:
       - test:
           requires:
             - init
+      - coverage:
+          requires:
+            - test
