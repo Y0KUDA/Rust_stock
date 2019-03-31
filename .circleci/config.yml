@@ -1,0 +1,46 @@
+version: 2
+jobs:
+  init:
+    docker:
+      - image: circleci/rust
+    steps:
+      - checkout
+      - run:
+          name: update rust version
+          command: rustup --version > rustup-version
+      - persist_to_workspace:
+          root: .
+          paths:
+            - .
+
+  test:
+    docker:
+      - image: circleci/rust
+    steps:
+      - attach_workspace:
+          at: .
+      - run:
+          name: test
+          command: cargo test
+
+  build:
+    docker:
+      - image: circleci/rust
+    steps:
+      - attach_workspace:
+          at: .
+      - run:
+          name: build
+          command: cargo build
+
+workflows:
+  version: 2
+  all:
+    jobs:
+      - init
+      - build:
+          requires:
+            - test
+      - test:
+          requires:
+            - init
